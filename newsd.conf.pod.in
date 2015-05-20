@@ -244,6 +244,8 @@ replies to be sent to the specifies address, typically a mail
 gateway back to the newsgroup. If set to "-", no Reply-To header
 will be sent. The default is "-".
 
+=back
+
 =head1 .INFO FILES
 
 I<newsd> automatically creates and maintains little ".info"
@@ -256,6 +258,8 @@ a problem, in which case the daemon should not be running.
 
 =head1 SEE ALSO
 
+=over
+
 =item newsd(8) -- erco's simple nntp news server
 
 =item RFC 977 -- NNTP Protocol
@@ -263,6 +267,8 @@ a problem, in which case the daemon should not be running.
 =item RFC 2890 -- NNTP extensions
 
 =item RFC 1036 -- Usenet news messages format
+
+=back
 
 =head1 REPORTING BUGS
 
