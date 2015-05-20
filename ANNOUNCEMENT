@@ -1,0 +1,22 @@
+Newsd 1.44 is now available for download from:
+
+    http://www.easysw.com/~mike/newsd/
+
+Newsd 1.44 fixes some header parsing problems left from the
+release candidates and is the first stable public release.
+
+Newsd is a standalone local NNTP news server for private
+newsgroup serving on a single server. It is useful for serving
+private newsgroup(s) to an intranet or the Internet, and can act
+as a simple mail gateway. However, it does not interface with
+other news servers and cannot manage distributed news feeds,
+i.e. Usenet news.
+
+Changes in 1.44:
+
+	- Important fix to multiline headers being split during
+	  header reordering
+	- STR#15: Path: now maintained and passed through mail
+	  gateway
+	- STR#16: Mailgateway: "From" field now renamed to
+	  "X-Original-From: "

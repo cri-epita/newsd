@@ -1,0 +1,27 @@
+100 Legal commands
+  authinfo user Name|pass Password|generic <prog> <args>
+  article [MessageID|Number]
+  body [MessageID|Number]
+  date
+  group newsgroup
+  head [MessageID|Number]
+  help
+  ihave
+  last
+  list [active|active.times|newsgroups|distributions|distrib.pats|overview.fmt|subscriptions|motd]
+  listgroup newsgroup
+  mode reader
+  newgroups [YY]yymmdd hhmmss ["GMT"|"UTC"] [<distributions>]
+  newnews newsgroups [YY]yymmdd hhmmss ["GMT"|"UTC"] [<distributions>]
+  next
+  post
+  slave
+  stat [MessageID|Number]
+  xgtitle [group_pattern]
+  xhdr header [range|MessageID]
+  xover [range]
+  xpat header range|MessageID pat [morepat...]
+  xpath MessageID
+Report problems to <usenet@news.keyway.net>
+.
+

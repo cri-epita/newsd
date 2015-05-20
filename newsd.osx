@@ -1,0 +1,39 @@
+#!/bin/sh
+
+##
+# NNTP - a.k.a. newsd
+##
+
+. /etc/rc.common
+
+StartService ()
+{
+	if [ "${NEWSD:=-YES-}" = "-YES-" ]; then
+		ConsoleMessage "Starting news services"
+		/usr/sbin/newsd
+    fi
+}
+
+StopService ()
+{
+	# Until newsd has a pid file...
+	pid=`ps ax | awk '{if (match($5, ".*/newsd$") || $5 == "newsd") print $1}'`
+	if test "$pid" != ""; then
+		ConsoleMessage "Stopping news services"
+		kill "${pid}"
+    fi
+}
+
+RestartService ()
+{
+	# Until newsd has a pid file...
+	pid=`ps ax | awk '{if (match($5, ".*/newsd$") || $5 == "newsd") print $1}'`
+	if test "x$pid" != x; then
+		ConsoleMessage "Restarting news services"
+		kill -HUP "${pid}"
+	else
+		StartService
+	fi
+}
+
+RunService "$1"

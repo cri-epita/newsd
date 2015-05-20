@@ -1,0 +1,7 @@
+{
+  Description     = "NNTP News Services";
+  Provides        = ("NNTP");
+  Requires        = ("Resolver");
+  Uses            = ("Network Time");
+  OrderPreference = "Late";
+}

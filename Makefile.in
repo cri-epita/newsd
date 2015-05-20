@@ -1,0 +1,284 @@
+#
+# Makefile -- build newsd
+#
+# erco@3dsite.com
+#
+# Copyright 2003-2004 Michael Sweet
+# Copyright 2002 Greg Ercolano
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public Licensse as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+
+CC		=	@CC@
+CFLAGS		=	@CFLAGS@ $(OPTIM)
+CXX		=	@CXX@
+CXXFLAGS	=	@CXXFLAGS@ $(OPTIM)
+HTMLDOC		=	@HTMLDOC@
+INSTALL		=	@INSTALL@
+LDFLAGS		=	@LDFLAGS@ $(OPTIM)
+MKDIR		=	@MKDIR@
+MV		=	@MV@
+NROFF		=	@NROFF@
+POD2MAN		=	pod2man --center "newsd Documentation"
+POD2HTML	=	pod2html
+OPTIM		=	@OPTIM@
+RM		=	@RM@ -f
+SHELL		=	/bin/sh
+VERSION		=	@VERSION@
+
+
+#
+# Installation programs...
+#
+
+INSTALL_BIN	=	$(INSTALL) -m 755 -s
+INSTALL_DATA	=	$(INSTALL) -m 644
+INSTALL_DIR	=	$(INSTALL) -d
+INSTALL_MAN	=	$(INSTALL) -m 644
+INSTALL_SCRIPT	=	$(INSTALL) -m 755
+
+
+#
+# Manpage extensions...
+#
+
+CAT5EXT		=	@CAT5EXT@
+CAT8EXT		=	@CAT8EXT@
+MAN8EXT		=	@MAN8EXT@
+
+
+#
+# Directories...
+#
+
+bindir		=	@bindir@
+datadir		=	@datadir@
+docdir		=	@docdir@
+exec_prefix	=	@exec_prefix@
+mandir		=	@mandir@
+prefix		=	@prefix@
+libdir		=	@libdir@
+sbindir		=	@sbindir@
+srcdir		=	@srcdir@
+spooldir	=	@spooldir@
+sysconfdir	=	@sysconfdir@
+initdir		=	@initdir@
+initddir	=	@initddir@
+
+DESTDIR		=
+OBJS		=	newsd.o Article.o Configuration.o Group.o Server.o
+DOCFILES	=	CHANGES LICENSE README \
+			doc/rfc1036.txt doc/rfc2980.txt doc/rfc977.txt
+MANPAGES	=	newsd.man newsd.$(CAT8EXT) \
+			newsd.conf.man newsd.conf.$(CAT5EXT)
+VPATH		=	$(srcdir)
+
+
+#
+# Rules...
+#
+
+.SILENT:
+
+.SUFFIXES:	.0 .1m .5 .8 .c .C .h .man .pod .o .z
+.c.o:
+	echo Compiling $<...
+	$(CC) $(CFLAGS) -I. -I$(srcdir) -c $<
+.C.o:
+	echo Compiling $<...
+	$(CXX) $(CXXFLAGS) -I. -I$(srcdir) -c $<
+.pod.man:
+	echo Generating $@...
+	$(RM) $@
+	$(POD2MAN) $< >$@
+.pod.0 .pod.1m .pod.5 .pod.8:
+	echo Formatting $@...
+	$(RM) $@.roff
+	$(POD2MAN) $< >$@.roff
+	$(NROFF) -man $@.roff >$@
+	$(RM) $@.roff
+.pod.z:
+	echo Formatting $@...
+	$(RM) $@ $@.roff $@.tmp $@.tmp.z
+	$(POD2MAN) $< >$@.roff
+	$(NROFF) -man $@.roff >$@.tmp
+	pack -f $@.tmp
+	$(MV) $@.tmp.z $@
+	$(RM) $@.roff
+
+
+#
+# Make everything...
+#
+
+all:		Makefile config.h newsd $(MANPAGES)
+
+
+#
+# Clean everything...
+#
+
+clean:
+	echo Cleaning all files
+	rm -f *.bck
+	rm -f *.o
+	rm -f newsd
+	rm -f $(MANPAGES)
+
+
+#
+# Install everything...
+#
+
+install:
+	echo Installing newsd in $(sbindir)...
+	$(INSTALL_DIR) $(DESTDIR)$(sbindir)
+	$(INSTALL_BIN) newsd $(DESTDIR)$(sbindir)
+	echo Installing newsd.conf in $(sysconfdir)...
+	$(INSTALL_DIR) $(DESTDIR)$(sysconfdir)
+	if test -r $(DESTDIR)$(sysconfdir)/newsd.conf ; then \
+		$(INSTALL_DATA) newsd.conf $(DESTDIR)$(sysconfdir)/newsd.conf.N ; \
+	else \
+		$(INSTALL_DATA) newsd.conf $(DESTDIR)$(sysconfdir) ; \
+	fi
+	echo Installing man pages in $(mandir)...
+	$(INSTALL_DIR) $(DESTDIR)$(mandir)/man5
+	$(INSTALL_MAN) newsd.conf.man $(DESTDIR)$(mandir)/man5/newsd.conf.5
+	$(INSTALL_DIR) $(DESTDIR)$(mandir)/man$(MAN8EXT)
+	$(INSTALL_MAN) newsd.man $(DESTDIR)$(mandir)/man$(MAN8EXT)/newsd.$(MAN8EXT)
+	$(INSTALL_DIR) $(DESTDIR)$(mandir)/cat5
+	$(INSTALL_MAN) newsd.conf.$(CAT5EXT) $(DESTDIR)$(mandir)/cat5
+	$(INSTALL_DIR) $(DESTDIR)$(mandir)/cat$(MAN8EXT)
+	$(INSTALL_MAN) newsd.$(CAT8EXT) $(DESTDIR)$(mandir)/cat$(MAN8EXT)
+	echo Installing documentation in $(docdir)...
+	$(INSTALL_DIR) $(DESTDIR)$(docdir)
+	for file in $(DOCFILES); do \
+		$(INSTALL_MAN) $$file $(DESTDIR)$(docdir); \
+	done
+	$(INSTALL_SCRIPT) inn2newsd.sh $(DESTDIR)$(docdir)
+	echo Creating news directory $(spooldir)...
+	$(INSTALL_DIR) $(DESTDIR)$(spooldir)
+	echo Installing startup script...
+	if test "x$(initdir)" != "x"; then \
+		$(INSTALL_DIR) $(DESTDIR)$(initdir)/init.d; \
+		$(INSTALL_SCRIPT) newsd.sh $(DESTDIR)$(initdir)/init.d/newsd; \
+		$(INSTALL_DIR) $(DESTDIR)$(initdir)/rc0.d; \
+		$(INSTALL_SCRIPT) newsd.sh $(DESTDIR)$(initdir)/rc0.d/K00newsd; \
+		$(INSTALL_DIR) $(DESTDIR)$(initdir)/rc2.d; \
+		$(INSTALL_SCRIPT) newsd.sh $(DESTDIR)$(initdir)/rc2.d/S99newsd; \
+		$(INSTALL_DIR) $(DESTDIR)$(initdir)/rc3.d; \
+		$(INSTALL_SCRIPT) newsd.sh $(DESTDIR)$(initdir)/rc3.d/S99newsd; \
+		$(INSTALL_DIR) $(DESTDIR)$(initdir)/rc5.d; \
+		$(INSTALL_SCRIPT) newsd.sh $(DESTDIR)$(initdir)/rc5.d/S99newsd; \
+	fi
+	if test "x$(initdir)" = "x" -a "x$(initddir)" != "x"; then \
+		$(INSTALL_DIR) $(DESTDIR)$(initddir); \
+		if test "$(initddir)" = "/Library/StartupItems/NNTP"; then \
+			$(INSTALL_SCRIPT) newsd.osx $(DESTDIR)$(initddir)/NNTP; \
+			$(INSTALL_DATA) newsd.plist $(DESTDIR)$(initddir)/StartupParameters.plist; \
+			$(INSTALL_DIR) $(DESTDIR)$(initddir)/Resources/English.lproj; \
+			$(INSTALL_DATA) newsd.strings $(DESTDIR)$(initddir)/Resources/English.lproj/Localizable.strings; \
+		else \
+			$(INSTALL_SCRIPT) newsd.sh $(DESTDIR)$(initddir)/newsd; \
+		fi \
+	fi
+
+
+#
+# Uninstall everything...
+#
+
+uninstall:
+	echo Uninstalling newsd from $(sbindir)...
+	$(RM) $(DESTDIR)$(sbindir)/newsd
+	echo Uninstalling newsd.conf from $(sysconfdir)...
+	$(RM) $(DESTDIR)$(sysconfdir)/newsd.conf.N
+	echo Uninstalling man pages from $(mandir)...
+	$(RM) $(DESTDIR)$(mandir)/man5/newsd.conf.5
+	$(RM) $(DESTDIR)$(mandir)/man$(MAN8EXT)/newsd.$(MAN8EXT)
+	$(RM) $(DESTDIR)$(mandir)/cat5/newsd.conf.$(CAT5EXT)
+	$(RM) $(DESTDIR)$(mandir)/cat$(MAN8EXT)/newsd.$(CAT8EXT)
+	echo Uninstalling documentation from $(docdir)...
+	$(RM) -r $(DESTDIR)$(docdir)
+	echo Uninstallingg startup script...
+	if test "x$(initdir)" != "x"; then \
+		$(RM) $(DESTDIR)$(initdir)/init.d/newsd; \
+		$(RM) $(DESTDIR)$(initdir)/rc0.d/K00newsd; \
+		$(RM) $(DESTDIR)$(initdir)/rc2.d/S99newsd; \
+		$(RM) $(DESTDIR)$(initdir)/rc3.d/S99newsd; \
+		$(RM) $(DESTDIR)$(initdir)/rc5.d/S99newsd; \
+	fi
+	if test "x$(initdir)" = "x" -a "x$(initddir)" != "x"; then \
+		$(RM) -r $(DESTDIR)$(initddir); \
+	fi
+
+
+#
+# Makefile
+#
+
+Makefile:	Makefile.in configure
+	if test -f config.status; then \
+		./config.status --recheck; \
+		./config.status; \
+	else \
+		./configure; \
+	fi
+	touch config.h
+
+
+#
+# config.h
+#
+
+config.h:	config.h.in configure
+	if test -f config.status; then \
+		./config.status --recheck; \
+		./config.status; \
+	else \
+		./configure; \
+	fi
+	touch config.h
+
+
+#
+# newsd
+#
+
+newsd:		$(OBJS)
+	echo Linking $@...
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+
+$(OBJS):	Configuration.H config.h everything.H
+Article.o:	Article.H
+Group.o:	Group.H
+Server.o:	Article.H Group.H Server.H
+newsd.o:	Article.H Group.H Server.H
+
+
+#
+# Packages...
+#
+
+rpm:
+	epm -v -nsm -f rpm --output-dir dist newsd
+
+osx:
+	epm -v -nsm -f portable -s newsd.gif --output-dir dist newsd
+
+
+#
+# End of "$Id: Makefile.in 85 2004-11-17 16:32:26Z mike $".
+#

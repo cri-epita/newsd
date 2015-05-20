@@ -1,0 +1,96 @@
+#
+# "$Id: newsd.list.in 125 2005-10-19 17:54:01Z mike $"
+#
+# ESP Package Manager (EPM) file list for Newsd.
+#
+# EPM can be found at "http://www.easysw.com/epm/".
+#
+# Copyright 2003-2004 Michael Sweet
+# Copyright 2002 Greg Ercolano
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public Licensse as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+
+%product Newsd
+%copyright 2002-2004 by Greg Ercolano and Michael Sweet
+%vendor Greg Ercolano and Michael Sweet
+%license LICENSE
+%readme README
+%version @VERSION@
+%description <<EOF
+Newsd is a standalone local NNTP news server for private
+newsgroup serving on a single server.  It is useful for
+serving private newsgroup(s) to an intranet or the Internet
+and can act as a simple mail gateway, however it does not
+interface with other news servers and cannot manage
+distributed news feeds, i.e. Usenet news.
+EOF
+
+# Directories...
+$prefix=@prefix@
+$exec_prefix=@exec_prefix@
+$bindir=@bindir@
+$sbindir=@sbindir@
+$sysconfdir=@sysconfdir@
+$docdir=@docdir@
+$mandir=@mandir@
+$datadir=@datadir@
+$initddir=@initddir@
+$spooldir=@spooldir@
+# Server...
+f 0555 root sys $sbindir/newsd newsd
+
+# Config file...
+c 0644 root sys $sysconfdir/newsd.conf newsd.conf
+
+# Spool directory...
+d 0755 news news $spooldir
+
+# Man pages...
+$CAT5EXT=@CAT5EXT@
+$CAT8EXT=@CAT8EXT@
+$MAN8EXT=@MAN8EXT@
+
+f 0444 root sys $mandir/man5/newsd.conf.5 newsd.conf.man
+f 0444 root sys $mandir/cat5/newsd.conf.$CAT5EXT newsd.conf.$CAT5EXT
+
+f 0444 root sys $mandir/man$MAN8EXT/newsd.$MAN8EXT newsd.man
+f 0444 root sys $mandir/cat$MAN8EXT/newsd.$CAT8EXT newsd.$CAT8EXT
+
+# Documentation...
+d 0555 root sys $docdir
+f 0444 root sys $docdir/CHANGES CHANGES
+f 0444 root sys $docdir/LICENSE LICENSE
+f 0444 root sys $docdir/README README
+f 0444 root sys $docdir/ doc/*.txt
+f 0555 root sys $docdir/inn2newsd.sh inn2newsd.sh
+
+# Startup script...
+%system darwin
+d 0555 root sys $initddir
+f 0555 root sys $initddir/NNTP newsd.osx
+f 0444 root sys $initddir/StartupParameters.plist newsd.plist
+d 0555 root sys $initddir/Resources
+d 0555 root sys $initddir/Resources/English.lproj
+f 0444 root sys $initddir/Resources/English.lproj/Localizable.strings newsd.strings
+
+%system !darwin
+i 0555 root sys newsd newsd.sh
+
+%system all
+
+#
+# End of "$Id: newsd.list.in 125 2005-10-19 17:54:01Z mike $".
+#
