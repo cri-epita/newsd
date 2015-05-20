@@ -970,7 +970,7 @@ int Server::Accept()
     size_t length = sizeof(sin);
 #endif
 
-    msgsock = accept(sock, (struct sockaddr*)&sin, &length);
+    msgsock = accept(sock, (struct sockaddr*)&sin, (socklen_t*)&length);
     if (msgsock < 0) 
     {
         errmsg = "accept(): ";

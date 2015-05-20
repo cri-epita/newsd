@@ -22,6 +22,7 @@
 #include "everything.H"
 #include <stdarg.h>
 #include <syslog.h>
+#include "limits.h"
 
 
 // Initialize default configuration values...
